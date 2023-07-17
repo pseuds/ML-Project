@@ -135,3 +135,10 @@ class HMM:
         prec = self.calculate_precision(goldfilepath, testfilepath)
         recall = self.calculate_recall(goldfilepath, testfilepath)
         return 2 / ( (1/prec) + (1/recall) ) 
+
+
+
+
+
+
+# Testing Testing
