@@ -7,27 +7,48 @@ class HMM:
         f = open(filepath, "r", encoding="utf8")
         lines = f.readlines()
 
+        # contains all x and y in sequence
         self.x_list = []
         self.y_list = []
+
+        # contains list of all encountered words
         self.known_words = []
+        # contains list of all encountered tags (assumes training set contains all possible tags :C)
         self.tags_list = []
-        self.count_y_dict = {}
+        # {y tag: {count: no of y tags, x_list: list of words with y tag},
+        # prevtag_count: {prevtag: no of times previous tag transitioned to y tag} }
+        self.count_y_dict = {
+            'START': {'prevtag_count':{}},
+            'STOP': {'prevtag_count':{}},
+        }
+
+        # START tag
+        prev_tag = 'START' 
 
         for line in lines: 
             l = line.split()
             try:
-                if not l[0] in self.known_words: self.known_words.append(l[0])
-                if not l[1] in self.tags_list: 
-                    self.tags_list.append(l[1])
-                    self.count_y_dict[l[1]] = {}
-                    self.count_y_dict[l[1]]['count'] = 0
-                    self.count_y_dict[l[1]]['x_list'] = []
-                self.x_list.append(l[0])
-                self.y_list.append(l[1])
-                self.count_y_dict[l[1]]['count'] += 1
-                self.count_y_dict[l[1]]['x_list'].append(l[0])
+                word = ' '.join(l[:-1])
+                if not word in self.known_words: 
+                    self.known_words.append(word)
+                if not l[-1] in self.tags_list: 
+                    self.tags_list.append(l[-1])
+                    self.count_y_dict[l[-1]] = {}
+                    self.count_y_dict[l[-1]]['count'] = 0
+                    self.count_y_dict[l[-1]]['x_list'] = []
+                    self.count_y_dict[l[-1]]['prevtag_count'] = {}
+                self.x_list.append(word)
+                self.y_list.append(l[-1])
+                self.count_y_dict[l[-1]]['count'] += 1
+                self.count_y_dict[l[-1]]['x_list'].append(word)
+                try: self.count_y_dict[l[-1]]['prevtag_count'][prev_tag] += 1
+                except: self.count_y_dict[l[-1]]['prevtag_count'][prev_tag] = 0
+                prev_tag = l[-1]
             except:
-                pass
+                # empty lines will reach here
+                try: self.count_y_dict['STOP']['prevtag_count'][prev_tag] += 1
+                except: self.count_y_dict['STOP']['prevtag_count'][prev_tag] = 0
+                prev_tag = 'START'
         f.close()
 
     def emission_v1(self, x, y):
@@ -41,32 +62,26 @@ class HMM:
     def emission_v2(self, x, y):
         count_yx = 0
         count_y = self.count_y_dict[y]['count']
-        # for i in range(len(self.x_list)):
-        #     # debug
-        #     # print("y",y,"self.y_list[i]",self.y_list[i])
-        #     if self.y_list[i] == y: count_y+=1
-        #     if self.y_list[i] == y and self.x_list[i] == x: count_yx+=1
-        # debug
-        # print("count_yx",count_yx,"count_y",count_y)
         for x_ in self.count_y_dict[y]['x_list']:
             if x_ == x: count_yx += 1
-
         if x == "#UNK#": return self.k/(count_y+self.k)
         else: return count_yx/(count_y+self.k)
+
+    def transition(self, new_y, old_y):
+        count_oldtonew = self.count_y_dict[new_y]['prevtag_count'][old_y]
+        count_old = self.count_y_dict[old_y]['count']
+        return count_oldtonew/count_old
 
     def predict_tag(self, x):
         highest_e = -1
         best_tag = None
-        # debug
         e_dd = {}
         for tag in self.tags_list:
             e_val = self.emission_v2(x, tag)
             if e_val > highest_e: 
                 highest_e = e_val
                 best_tag = tag
-            # debug
             e_dd[tag] = e_val
-        # print(e_dd)
         return best_tag
     
     def evaluate(self, testfilepath):
@@ -86,52 +101,3 @@ class HMM:
             w.write(f"{line} {result_tag}\n")
         w.close()
         f.close()
-
-    def calculate_precision(self, goldfilepath, testfilepath):
-        # TODO: NOT SURE IF CORRECT
-        f_gold = open(goldfilepath, "r", encoding="utf8")
-        f_test = open(testfilepath, "r", encoding="utf8")
-        lines_gold = f_gold.readlines()
-        lines_test = f_test.readlines()
-        correct_count = 0
-        total_count = 0
-        for gl, tl in zip(lines_gold, lines_test):
-            if gl == "\n":
-                continue
-            g = gl.split()
-            t = tl.split()
-            # total_count += 1
-            # if t[1] != "O":
-            total_count += 1
-            if g[1] == t[1]: 
-                correct_count += 1
-        f_gold.close()
-        f_test.close()
-        return correct_count/total_count
-    
-    def calculate_recall(self, goldfilepath, testfilepath):
-        # TODO: I DON'T KNOW
-        f_gold = open(goldfilepath, "r", encoding="utf8")
-        f_test = open(testfilepath, "r", encoding="utf8")
-        lines_gold = f_gold.readlines()
-        lines_test = f_test.readlines()
-        correct_count = 0
-        total_count = 0
-        for gl, tl in zip(lines_gold, lines_test):
-            if gl == "\n":
-                continue
-            g = gl.split()
-            t = tl.split()
-            # total_count += 1
-            # if t[1] != "O":
-            total_count += 1
-            if g[1] == t[1]: 
-                correct_count += 1
-        f_gold.close()
-        f_test.close()
-        return correct_count/total_count
-    
-    def calculate_f_score(self, goldfilepath, testfilepath):
-        prec = self.calculate_precision(goldfilepath, testfilepath)
-        recall = self.calculate_recall(goldfilepath, testfilepath)
-        return 2 / ( (1/prec) + (1/recall) ) 
