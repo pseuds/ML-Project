@@ -74,8 +74,6 @@ class HMM:
         else: return count_yx/(count_y+self.k)
 
     def transition(self, new_y, old_y):
-        # print("new_y:", new_y, "old_y:", old_y)
-        # print("self.count_y_dict[new_y]['prevtag_count']:", self.count_y_dict[new_y]['prevtag_count'])
         try: count_oldtonew = self.count_y_dict[new_y]['prevtag_count'][old_y]
         except: count_oldtonew = 0
         count_old = self.count_y_dict[old_y]['count']
@@ -139,15 +137,10 @@ class HMM:
         best_value = -1
         best_prevtag = None
         for prev_tag in self.tags_list:
-            # print("step-1:",step-1, "prev_tag:",prev_tag)
-            # print("self.get_policy(step-1, prev_tag):",self.get_policy(step-1, prev_tag))
-            # print("self.get_transition(prev_tag, current_tag):",self.get_transition(prev_tag, current_tag))
-            # print("self.get_emission(current_tag, word):",self.get_emission(current_tag, word))
             value = self.get_policy(step-1, prev_tag)[0] * self.get_transition(prev_tag, current_tag) * self.get_emission(current_tag, word)
             if value > best_value:
                 best_value = value
                 best_prevtag = prev_tag
-        # self.policy_dict[step] = {}
         self.policy_dict[step][current_tag] = (best_value, best_prevtag)
 
     def viterbi(self, x_sequence):
@@ -162,10 +155,6 @@ class HMM:
             self.policy_dict[current_step][tag] = (self.get_policy(0,"START") * self.get_transition("START", tag) * self.get_emission(tag, x_sequence[current_step-1]), "START")
         current_step += 1
 
-        # print("Init step 1 done.")
-        # print(self.policy_dict[1])
-        # breakpoint()
-
         # from 2nd word onwards
         for word in x_sequence[1:]:
             self.policy_dict[current_step] = {}
@@ -173,7 +162,6 @@ class HMM:
                 self.set_policy(current_step, current_tag, word)
             current_step += 1
         
-        print("Backtracking begins.")
         # Backtracking
         current_step -= 1
         optimal_state_sequence = []
@@ -191,8 +179,6 @@ class HMM:
                         best_tag = tag
                 except: 
                     print("Error. best_tag not retrieved")
-                    print("self.get_policy[current_step][tag][0]:",self.get_policy[current_step][tag][0])
-                    print("self.get_transition(tag, next_tag):",self.get_transition(tag, next_tag))
                     this_value = self.get_policy(current_step, tag)[0] * self.get_transition(tag, next_tag)
                     pass
             optimal_state_sequence.append(best_tag)
@@ -210,9 +196,9 @@ class HMM:
             if line != "\n":
                 sentence.append(line[:-1])
             else:
-                w.write(line)
                 optimal_tags = self.viterbi(sentence)
                 for tag, word in zip(optimal_tags, sentence):
                     w.write(f"{word} {tag}\n")
+                sentence = []
         w.close()
         f.close()
