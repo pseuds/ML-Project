@@ -1,4 +1,3 @@
-
 Plato B-negative
 degustación I-negative
 : O
@@ -364,8 +363,8 @@ poquito O
 de O
 musica B-negative
 de O
-ambiente B-positive
-daria I-positive
+ambiente B-neutral
+daria I-neutral
 intimidad O
 , O
 se O
@@ -644,9 +643,9 @@ precioso O
 JAJAJAJA B-neutral
 , O
 me O
-río B-positive
-yo O
-de O
+río B-negative
+yo I-negative
+de I-negative
 los O
 tenedores O
 . O
@@ -2140,11 +2139,11 @@ de O
 que O
 cambiaban O
 el O
-arroz B-positive
-negro I-positive
-caldoso I-positive
-con I-positive
-sepia I-positive
+arroz B-negative
+negro I-negative
+caldoso I-negative
+con I-negative
+sepia I-negative
 por O
 un O
 arroz B-positive
@@ -2171,7 +2170,7 @@ siempre O
 Cenar B-neutral
 en O
 la O
-terraza O
+terraza B-positive
 : O
 fantastico O
 , O
@@ -2208,7 +2207,7 @@ comentario O
 a O
 favor O
 del O
-cocinero O
+cocinero B-positive
 es O
 que O
 el O
@@ -2248,7 +2247,7 @@ ternasco B-positive
 y O
 todo O
 con O
-vinos O
+vinos B-positive
 aragoneses O
 ) O
 . O
@@ -2389,7 +2388,7 @@ muy O
 buena O
 exceoti B-positive
 el O
-tiramisú O
+tiramisú B-positive
 , O
 que O
 para O
@@ -3106,8 +3105,8 @@ exquisitas O
 especialidades O
 riquísimas B-positive
 , O
-ambiente B-positive
-íntimo I-positive
+ambiente B-neutral
+íntimo I-neutral
 y O
 servicio B-positive
 atento O
@@ -3158,7 +3157,7 @@ cebolla B-positive
 , O
 que O
 de O
-textura O
+textura B-positive
 y O
 de O
 sabor O
@@ -3245,11 +3244,11 @@ a O
 la O
 perfección O
 el O
-sabor B-negative
-de I-negative
-los I-negative
-pescaditos I-negative
-fritos O
+sabor O
+de O
+los O
+pescaditos B-neutral
+fritos I-neutral
 , O
 paella B-positive
 .. O
@@ -3562,7 +3561,7 @@ impecable O
 Buena O
 cara O
 de O
-vinos O
+vinos B-positive
 . O
 
 - O
@@ -3762,10 +3761,10 @@ es O
 de O
 los O
 que O
-deslumbra B-positive
-con O
-su O
-decoración B-positive
+deslumbra B-neutral
+con I-neutral
+su I-neutral
+decoración O
 de O
 lujo O
 pero O
@@ -4398,7 +4397,7 @@ la I-negative
 trufa I-negative
 y O
 el O
-cabrito O
+cabrito B-positive
 , O
 es O
 estupendo O
@@ -4576,3 +4575,4 @@ dejarte B-neutral
 la I-neutral
 cartera I-neutral
 . O
+
