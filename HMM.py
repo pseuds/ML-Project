@@ -137,6 +137,7 @@ class HMM:
 
     # get policy
     def get_policy(self, step, y):
+        # Base case, where step is 0
         if step == 0:
             return 1 if y == "START" else 0
         else: 
@@ -153,21 +154,32 @@ class HMM:
                 best_tag = prev_tag
         self.policy_dict[step][current_tag] = (best_value, best_tag)
 
+    # finds the k best prev tags and sets them
+    def set_policy_kth(self, step, current_tag, word, kth):
+        kth_ls = [(-1, None, None) for _ in range(kth)]
+        for prev_tag in self.tags_list:
+            for i in range(kth):
+                value = self.get_policy(step-1, prev_tag)[i][0] * self.get_transition(prev_tag, current_tag) * self.get_emission(current_tag, word)
+                self.insert_sort(kth_ls, (value, prev_tag, i))
+        self.policy_dict[step][current_tag] = kth_ls
+
+    # inserts and maintains sorted array, returns same array if value is less than all elements 
+    def insert_sort(self, array, value):
+        if value[0] > array[0][0]: array[0] = value
+        array.sort(key=lambda x:x[0])
+
     # Part 2.2 : viterbi algorithm
     def viterbi(self, x_sequence):
-        # Base case, where step is 0
-
-        # Moving forward recursively
         self.policy_dict = {}
         self.k = 1
 
+        # Moving forward recursively
         # init step 1
         current_step = 1
-        self.policy_dict[current_step]={}
+        self.policy_dict[current_step] = {}
         word = x_sequence[0]
         for tag in self.tags_list:
             if not word in self.known_words: 
-                # self.k += 1
                 word = "#UNK#"
             self.policy_dict[current_step][tag] = (self.get_transition("START", tag) * self.get_emission(tag, word), 'START')
         current_step += 1
@@ -175,7 +187,6 @@ class HMM:
         # from 2nd word onwards
         for word in x_sequence[1:]:
             if not word in self.known_words: 
-                # self.k += 1
                 word = "#UNK#"
             self.policy_dict[current_step] = {}
             for current_tag in self.tags_list:
@@ -187,7 +198,7 @@ class HMM:
         best_tag = None
         self.policy_dict[current_step]={}
         for last_tag in self.tags_list:
-            value = self.policy_dict[current_step-1][last_tag][0] * self.get_transition(last_tag, 'STOP')
+            value = self.get_policy(current_step-1, last_tag)[0] * self.get_transition(last_tag, 'STOP')
             if value > best_value:
                 best_value = value
                 best_tag = last_tag
@@ -197,7 +208,7 @@ class HMM:
         optimal_state_sequence = []
         next_tag = "STOP"
         for _ in range(len(x_sequence)):
-            prev_tag = self.policy_dict[current_step][next_tag][1]
+            prev_tag = self.get_policy(current_step, next_tag)[1]
             optimal_state_sequence.append(prev_tag)
             current_step -= 1
             next_tag = prev_tag
@@ -221,4 +232,84 @@ class HMM:
                 sentence = []
                 w.write("\n")
         w.close()
+        f.close()
+
+    # Part 3 : Viterbi algorithm to find kth best outputs
+    def viterbi_kth(self, x_sequence, kth):
+        self.policy_dict = {}
+        self.k = 1
+
+        # Moving forward recursively 
+        # init step 1
+        current_step = 1
+        self.policy_dict[current_step] = {}
+        word = x_sequence[0]
+        for tag in self.tags_list:
+            kth_ls = [(-1, None, None) for _ in range(kth)]
+            if not word in self.known_words: 
+                word = "#UNK#"
+            pi_value = self.get_transition("START", tag) * self.get_emission(tag, word)
+            self.insert_sort(kth_ls, (pi_value, "START", 0))
+            self.policy_dict[current_step][tag] = kth_ls
+        current_step += 1
+
+        # from 2nd word onwards:
+        for word in x_sequence[1:]:
+            if not word in self.known_words:
+                word = "#UNK#"
+            self.policy_dict[current_step] = {}
+            for current_tag in self.tags_list:
+                self.set_policy_kth(current_step, current_tag, word, kth)
+            current_step += 1
+        
+        # from last word to STOP
+        kth_ls = [(-1, None, None) for _ in range(kth)]
+        self.policy_dict[current_step] = {}
+        for last_tag in self.tags_list:
+            for i in range(kth):
+                value = self.get_policy(current_step-1, last_tag)[i][0] * self.get_transition(last_tag, 'STOP')
+                self.insert_sort(kth_ls, (value, last_tag, i))
+        self.policy_dict[current_step]['STOP'] = kth_ls
+
+        kth_best_sequences = []
+        # Backtracking
+        for i in range(kth):
+            ith_best_seq = []
+            next_tag = 'STOP'
+            for _ in range(len(x_sequence)):
+                prev_tag = self.get_policy(current_step, next_tag)[i][1]
+                next_i = self.get_policy(current_step, next_tag)[i][2]
+                ith_best_seq.append(prev_tag)
+                current_step -= 1
+                next_tag = prev_tag
+                i = next_i
+            ith_best_seq.reverse()
+            kth_best_sequences.append(ith_best_seq)
+        # reverse, so that best sequence starts at index 0
+        kth_best_sequences.reverse()
+        return kth_best_sequences 
+
+    # Part 3 : write 2nd and 8th best output using Viterbi algorithm
+    def evaluate_viterbi_kth(self, testfilepath):
+        f = open(testfilepath, "r", encoding="utf8")
+        w2 = open(f"Data/{testfilepath[5:7]}/dev.p3.2nd.out", "w", encoding="utf8")
+        w8 = open(f"Data/{testfilepath[5:7]}/dev.p3.8th.out", "w", encoding="utf8")
+        lines = f.readlines()
+        sentence = []
+        for line in lines:
+            # if line is not empty, add the word to the sentence
+            if line != "\n": sentence.append(line[:-1])
+            # if line is empty, run viterbi on the sentence
+            else:
+                best_sequences = self.viterbi_kth(sentence,8)
+                second_best = best_sequences[1]
+                eighth_best = best_sequences[7]
+                for tag2, tag8, word in zip(second_best, eighth_best, sentence):
+                    w2.write(f"{word} {tag2}\n")
+                    w8.write(f"{word} {tag8}\n")
+                sentence = []
+                w2.write("\n")
+                w8.write("\n")
+        w2.close()
+        w8.close()
         f.close()
