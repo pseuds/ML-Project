@@ -272,10 +272,12 @@ class HMM:
         self.policy_dict[current_step]['STOP'] = kth_ls
 
         kth_best_sequences = []
+        last_step = current_step
         # Backtracking
         for i in range(kth):
             ith_best_seq = []
             next_tag = 'STOP'
+            current_step = last_step
             for _ in range(len(x_sequence)):
                 prev_tag = self.get_policy(current_step, next_tag)[i][1]
                 next_i = self.get_policy(current_step, next_tag)[i][2]
