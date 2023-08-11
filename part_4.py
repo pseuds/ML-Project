@@ -153,3 +153,14 @@ def pos_viterbi(train_path, test_path, mean_bias, spread_bias):
         path_out = f"{dir}/{name}.p4.out"
         with open(path_out, mode="w") as fp_out:
             fp_out.write(out)
+
+if __name__ == '__main__':
+    print("Processing ES...")
+    # For ES dataset
+    pos_viterbi("Data/ES/train", "Data/ES/dev.in", 1, 1)
+
+    print("Processing RU...")
+    # For RU dataset
+    pos_viterbi("Data/RU/train", "Data/RU/dev.in", 0.6, 1)
+
+    print("Done.")

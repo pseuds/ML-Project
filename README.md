@@ -33,3 +33,10 @@ In the terminal, run:
 python part_3.py
 ```
 `dev.p3.2nd.out` and `dev.p3.8th.out` should appear in both `Data/ES/` and `Data/RU/`.
+
+## Running Part 4
+In the terminal, run:
+```
+python part_4.py
+```
+`dev.p4.out` should appear in both `Data/ES/` and `Data/RU/`.
