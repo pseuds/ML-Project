@@ -158,9 +158,11 @@ if __name__ == '__main__':
     print("Processing ES...")
     # For ES dataset
     pos_viterbi("Data/ES/train", "Data/ES/dev.in", 1, 1)
+    pos_viterbi("Data/ES/train", "Data/ES/test.in", 1, 1)
 
     print("Processing RU...")
     # For RU dataset
     pos_viterbi("Data/RU/train", "Data/RU/dev.in", 0.6, 1)
+    pos_viterbi("Data/RU/train", "Data/RU/test.in", 0.6, 1)
 
     print("Done.")
