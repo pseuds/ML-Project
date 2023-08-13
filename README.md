@@ -35,8 +35,15 @@ python part_3.py
 `dev.p3.2nd.out` and `dev.p3.8th.out` should appear in both `Data/ES/` and `Data/RU/`.
 
 ## Running Part 4
-In the terminal, run:
+In the terminal, run the following for our chosen approach (Viterbi Algorithm with State Transition Positional Bias):
 ```
 python part_4.py
 ```
 `dev.p4.out` should appear in both `Data/ES/` and `Data/RU/`.
+
+We have also tried another approach to see if it scores better. <br>
+In the terminal, run the following for our Naive Bayes approach:
+```
+python part_4b.py
+```
+`dev.p4b.out` should appear in both `Data/ES/` and `Data/RU/`.
