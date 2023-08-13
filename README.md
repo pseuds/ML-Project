@@ -6,6 +6,8 @@
 - Miguel Ong (1006008)
 - Josephine Tan Xin Yi (1006128)
 
+Our final report is in `report.ipynb`.
+
 ## Prerequisites
 Make sure the following exists:
 - `/Data/ES/train`
